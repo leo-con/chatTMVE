@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="js/validaciones.js"></script>
+  <!--<script src="js/comunes1.js"></script> -->
+  <link rel="stylesheet" type="text/css" href="css/theme-template-blue.css" />
+  <meta charset="utf-8">
+  <title>PureCloud WebChat Demo</title>
+</head>
+<body>
+
+
+<script src="https://apps.mypurecloud.com/widgets/9.0/cxbus.min.js" onload="javascript:CXBus.configure({debug:false,pluginsPath:'https://apps.mypurecloud.com/widgets/9.0/plugins/'}); CXBus.loadPlugin('widgets-core');"></script>
+
+<script type="text/javascript">
+    window._genesys = {
+      widgets: {
+        main:{
+        themes: {
+
+          dark: 'cx-theme-dark',
+          light: 'cx-theme-light',
+          blue: 'cx-theme-blue',
+          red: 'cx-theme-red'
+        },
+          theme: 'blue',
+          lang : 'es',
+           i18n: 'livechat_genesis_v0.2/widgets-es.i18n.txt'
+          },
+        webchat: {
+          emojis: true,
+          uploadsEnabled: true,
+          transport: {
+            type: 'purecloud-v2-sockets',
+            dataURL: 'https://api.usw2.pure.cloud',
+            deploymentKey : '16dceb28-418d-4a8d-a502-c83fa9571d9e',
+            orgGuid :  '28e42d91-db2b-4a03-9bf7-5b39a8f0b89f'
+          },
+          userData: {
+
+            /*addressStreet: '64472 Brown Street',
+            addressCity: 'Lindgrenmouth',
+            addressPostalCode: '50163-2735',
+            addressState: 'FL',
+            phoneNumber: '1-916-892-2045 x293',
+            phoneType: 'Cell',
+            customerId: '59606',*/
+            // These fields should be provided via advanced configuration
+            // firstName: 'Praenomen',
+            // lastName: 'Gens',
+            // email: 'praenomen.gens@calidumlitterae.com',
+            // subject: 'Chat subject'
+          }
+        }
+      }
+    };
+
+    const customPlugin = CXBus.registerPlugin('Custom');
+
+    customPlugin.subscribe('WebChatService.started', function (e) {
+      console.log('Chat started**', e);
+    });
+
+    customPlugin.subscribe('WebChatService.ended', function (e) {
+      console.log('Chat ended', e);
+    });
+
+    customPlugin.subscribe("WebChat.opened", function(e){
+
+      // e = Event Object. Contains metadata and attached data
+      //
+      // Example Event Object data:
+      //
+      // e.time == 1532017560154
+      // e.event == "WebChat.opened"
+      // e.publisher == "WebChat"
+        console.log('---------WebChat.opened----------', e);
+      // no funciona  $("#cx-svg-icon-tone1").append( CXCommon.Generate.Icon("agent") );
+    });
+
+  </script>
+
+
+  <script type="text/javascript">
+    function getAdvancedConfig() {
+      return {
+        form: {
+          autoSubmit: false//,
+          //firstname: 'Juan',
+          //lastname: 'Garcia',
+          //email: 'Juan.Garcia@gmail.com',
+          //phonenumber: '+584141112234',
+          //customField1: '11234567'
+        },
+        formJSON: {
+          wrapper: '<table></table>',
+          inputs: [
+            // Default fields
+            {
+              id: 'cx_webchat_form_firstname',
+              name: 'firstname',
+              maxlength: '100',
+              placeholder: 'Nombre',
+              label: 'Nombre',
+              wrapper: '<tr><td class="required">{label}</td></tr><tr><td>{input}</td></tr><tr><td class="cx-error-message"></td></tr>',
+              validate: function(event, form, input, label, $, CXBus, Common){
+                  let validationResult = validateFormInput(form, input, '* No puede estar vacío');
+                  if (input !== undefined && validationResult === true) {
+                    if ( !isNaN(input.val()) ) {
+                         showErrorMessage(form, '* No puede ser Numérico');
+                         form.last().children().css({"color": "red"});
+                         validationResult = false;
+                    } else {
+                    showErrorMessage(form, 'Correcto');
+                    form.last().children().css({"color": "green"});
+                    }
+                  }
+                  return validationResult;
+              }
+            },
+            {
+              id: 'cx_webchat_form_lastname',
+              name: 'lastname',
+              maxlength: '100',
+              placeholder: 'Apellido',
+              label: 'Apellido',
+              wrapper: '<tr><td class="required">{label}</td></tr><tr><td>{input}</td></tr><tr><td class="cx-error-message"></td></tr>',
+              validate: function(event, form, input, label, $, CXBus, Common){
+                  let validationResult = validateFormInput(form, input, '* No puede estar vacío');
+                  if (input !== undefined && validationResult === true) {
+                  	if ( !isNaN(input.val()) ) {
+                         showErrorMessage(form, '* No puede ser Numérico');
+                         form.last().children().css({"color": "red"});
+                         validationResult = false;
+                    } else {
+                    showErrorMessage(form, 'Correcto');
+                    form.last().children().css({"color": "green"});
+                    }
+                  }
+                  return validationResult;
+              }
+            },
+            {
+              id: 'cx_webchat_form_email',
+              name: 'email',
+              maxlength: '100',
+              placeholder: 'Correo electrónico',
+              label: 'Correo electrónico',
+              wrapper: '<tr><td class="required">{label}</td></tr><tr><td>{input}</td></tr><tr><td class="cx-error-message"></td></tr>',
+              validate: function(event, form, input, label, $, CXBus, Common){
+                  let validationResult = validateFormInput(form, input, '* No puede estar vacío');
+                  let reg = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+                  var espacioEnBlanco = /\s/;
+                  if (input !== undefined && validationResult === true) {
+                   if ( !reg.test(input.val()) ) {
+                         showErrorMessage(form, '* Error en el formato de correo');
+                         form.last().children().css({"color": "red"});
+                         validationResultEmail = false;
+                         //} else if ( input.val().trim().length > 0 ) {
+	                     } else if (espacioEnBlanco.test(input.val())) {
+	                     showErrorMessage(form, '* No puede terer espacios');
+	                     form.last().children().css({"color": "red"});
+	                     validationResult = false;
+                       } else {
+                         showErrorMessage(form, 'Correcto');
+                         form.last().children().css({"color": "green"});
+                       }
+                  }
+                  return validationResult;
+              }
+            },
+            {
+              id: 'phonenumber',
+              name: 'phonenumber',
+              maxlength: '11',
+              placeholder: 'Teléfono',
+              label: 'Teléfono',
+              wrapper: '<tr><td class="required">{label}</td></tr><tr><td>{input}</td></tr><tr><td class="cx-error-message"></td></tr>',
+              validate: function(event, form, input, label, $, CXBus, Common){
+                  let validationResult = validateFormInput(form, input, '* No puede estar vacío');
+                  var espacioEnBlanco = /\s/;
+                  if (input !== undefined && validationResult === true) {
+                       if ( isNaN(input.val()) ) {
+                         showErrorMessage(form, '* Debe ser Numérico');
+                         form.last().children().css({"color": "red"});
+                         validationResult = false;
+                         //} else if ( input.val().trim().length > 0 ) {
+	                     } else if (espacioEnBlanco.test(input.val())) {
+	                     showErrorMessage(form, '* No puede terer espacios');
+	                     form.last().children().css({"color": "red"});
+	                     validationResult = false;
+                       } else if (input.val().length != 11) {
+                         showErrorMessage(form, '* Debe tener minino 11 digitos');
+                         form.last().children().css({"color": "red"});
+                         validationResult = false;
+                       }else{
+                         showErrorMessage(form, 'Correcto');
+                         form.last().children().css({"color": "green"});
+                       }
+                  }
+                  return validationResult;
+              }
+            },
+            // Custom Fields
+            {
+              id: 'custom_field_1',
+              name: 'customField1',
+              maxlength: '8',
+              placeholder: 'Cédula',
+              label: 'Cédula',
+              wrapper: '<tr><td class="required">{label}</td></tr><tr><td>{input}</td></tr><tr><td class="cx-error-message"></td></tr>',
+              validate: function(event, form, input, label, $, CXBus, Common){
+                  let validationResult = validateFormInput(form, input, '* No puede estar vacío');
+                  var espacioEnBlanco = /\s/;
+                  if (input !== undefined && validationResult === true) {
+                       if ( isNaN(input.val()) ) {
+                         showErrorMessage(form, '* Debe ser Numérico');
+                         form.last().children().css({"color": "red"});
+                         validationResult = false;
+                         //} else if ( input.val().trim().length > 0 ) {
+	                     } else if (espacioEnBlanco.test(input.val())) {
+	                     showErrorMessage(form, '* No puede terer espacios');
+	                     form.last().children().css({"color": "red"});
+	                     validationResult = false;
+	                     } else if (input.val().length < 6) {
+                         showErrorMessage(form, '* Debe tener minimo 6 digitos');
+                         form.last().children().css({"color": "red"});
+                         validationResult = false;
+                       }else{
+                         showErrorMessage(form, 'Correcto');
+                         form.last().children().css({"color": "green"});
+                       }
+                  }
+                  return validationResult;
+              }
+            }
+          ]
+        }
+      };
+    }
+  </script>
+
+  <div id="atm-pestanacomercial-pestana">
+                                <button onclick="window._genesys.widgets.bus.command('App.setTheme');  customPlugin.command('WebChat.open', getAdvancedConfig());" >Iniciar chat</button>
+                             </div>
+
+</body>
+
+
+
+</html>
